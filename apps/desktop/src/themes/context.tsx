@@ -17,7 +17,7 @@ import { matchesQuery, useMediaQuery } from '@/hooks/use-media-query'
 import { persistString, persistStringRecord, storedString, storedStringRecord } from '@/lib/storage'
 import { $activeGatewayProfile, normalizeProfileKey } from '@/store/profile'
 
-import { $backendThemes, $pendingSkinApply } from './backend-sync'
+import { $backendSkinName, $backendThemes, $pendingSkinApply } from './backend-sync'
 import { hexToRgb, mix, readableOn } from './color'
 import { BUILTIN_THEME_LIST, DEFAULT_SKIN_NAME, DEFAULT_TYPOGRAPHY, nousTheme } from './presets'
 import type { DesktopTheme, DesktopThemeColors } from './types'
@@ -65,6 +65,14 @@ const profilePref = <T extends string>(record: string, legacy: string, normalize
     }
   }
 })
+
+const hasStoredAppearanceAssignment = (record: string, legacy: string, profile: string): boolean => {
+  if (profile === 'default') {
+    return storedString(legacy) !== null
+  }
+
+  return Object.prototype.hasOwnProperty.call(storedStringRecord(record), profile) || storedString(legacy) !== null
+}
 
 export const skinPref = profilePref(PROFILE_SKINS_KEY, SKIN_KEY, normalizeSkin)
 export const modePref = profilePref(PROFILE_MODES_KEY, MODE_KEY, normalizeMode)
@@ -192,6 +200,7 @@ function applyTheme(theme: DesktopTheme, mode: 'light' | 'dark') {
   root.style.setProperty('color-scheme', rendered)
   root.dataset.hermesTheme = skinName
   root.dataset.hermesMode = rendered
+  root.dataset.hermesShellVariant = /^lcars(?:-|$)/i.test(skinName) ? 'lcars' : 'standard'
   root.classList.toggle('dark', isDark)
 
   // Brand seeds feed every glass + shadcn token via `color-mix()` in styles.css.
@@ -324,6 +333,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // grid, and `/skin` without a reload.
   const userThemes = useStore($userThemes)
   const backendThemes = useStore($backendThemes)
+  const backendSkinName = useStore($backendSkinName)
   const registryVersion = useStore($registryVersion)
 
   const availableThemes = useMemo(
@@ -353,6 +363,26 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeNameState(skinPref.resolve(profileKey))
     setModeState(modePref.resolve(profileKey))
   }, [profileKey])
+
+  // Backend skin seed should win when this desktop has never stored an explicit
+  // appearance choice for the current profile. Without this, a first-run custom
+  // skin stays registered-but-unapplied and the window remains on default nous
+  // forever until the user manually switches themes inside the desktop.
+  useEffect(() => {
+    if (!backendSkinName) {
+      return
+    }
+
+    if (hasStoredAppearanceAssignment(PROFILE_SKINS_KEY, SKIN_KEY, profileKey)) {
+      return
+    }
+
+    const next = normalizeSkin(backendSkinName)
+
+    if (next !== themeName) {
+      setThemeNameState(next)
+    }
+  }, [backendSkinName, profileKey, themeName])
 
   // Appearance is per-profile localStorage, and every desktop window is another
   // renderer on the same origin — so a switch made in the HUD (or any peer

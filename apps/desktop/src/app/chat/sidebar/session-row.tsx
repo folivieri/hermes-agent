@@ -100,8 +100,18 @@ function disarmMarquee(event: React.PointerEvent<HTMLElement>) {
 // and is never narrower than the button that has to cover it. A PR chip is the
 // exception while the pointer is on it: it's a link, and the kebab sits
 // absolute over this space, so it has to stop taking clicks too, not just fade.
-const TAIL_HIDES = 'min-w-5 transition-opacity group-hover:opacity-0 group-has-[[data-pr-link]:hover]:opacity-100'
+const TAIL_HIDES = 'min-w-7 transition-opacity group-hover:opacity-0 group-has-[[data-pr-link]:hover]:opacity-100'
 const KEBAB_YIELDS = 'group-has-[[data-pr-link]:hover]:pointer-events-none group-has-[[data-pr-link]:hover]:opacity-0'
+
+function lcarsAccentIndex(seed: string): number {
+  let hash = 0
+
+  for (const ch of seed) {
+    hash = (hash * 31 + ch.charCodeAt(0)) | 0
+  }
+
+  return (Math.abs(hash) % 6) + 1
+}
 
 function formatAge(seconds: number, r: Translations['sidebar']['row']): string {
   const { unit, value } = coarseElapsed(Date.now() - seconds * 1000)
@@ -135,6 +145,7 @@ function SidebarSessionRowImpl({
   const { cancelPrewarm, startPrewarm } = useProfilePrewarm(session.profile)
   const title = sessionTitle(session)
   const age = formatAge(session.last_active || session.started_at, r)
+  const accentIndex = lcarsAccentIndex(`${normalizeProfileKey(session.profile)}:${session.id}:${title}`)
   const handleLabel = `Reorder ${title}`
   // Opt-in row metadata from the sidebar's filter menu. Read from the store
   // rather than threaded as props: the subscription re-renders past the memo
@@ -192,15 +203,23 @@ function SidebarSessionRowImpl({
     const sep = card ? '\u00A0\u00A0' : ' · '
     const head = figures.slice(0, -1).join(sep)
 
+    const tailFigure = figures.at(-1)
+
     trailing.push({
       key: 'figures',
       node: (
         <span className="pointer-events-none whitespace-nowrap text-[0.625rem] leading-none text-(--ui-text-tertiary)">
-          {head}
+          {head ? <span>{head}{sep}</span> : null}
           {/* The figures own their tail: the separator goes with it. */}
-          <span className={cn('inline-block text-right', TAIL_HIDES)}>
-            {head && sep}
-            {figures.at(-1)}
+          <span
+            className={cn(
+              'inline-flex items-center justify-center text-right',
+              TAIL_HIDES,
+              !card && 'lcars-row-age-pill'
+            )}
+            data-row-age-pill={!card ? 'true' : undefined}
+          >
+            {tailFigure}
           </span>
         </span>
       )
@@ -258,7 +277,7 @@ function SidebarSessionRowImpl({
   // shell column would span the card's full height and shave every line,
   // when only the header shares its line with the age and kebab.
   const actionsNode = (
-    <div className="relative z-2 flex shrink-0 items-center justify-end gap-1" data-row-actions>
+    <div className="relative z-2 flex shrink-0 items-center justify-end gap-1.5 pr-3" data-row-actions>
       {trailing.map(({ key, node }, index) => (
         <span
           className={
@@ -318,6 +337,8 @@ function SidebarSessionRowImpl({
           dragging && 'z-10 cursor-grabbing bg-(--ui-sidebar-surface-background)',
           className
         )}
+        data-lcars-accent={String(accentIndex)}
+        data-slot="sidebar-session-row"
         data-working={liveTurn ? 'true' : undefined}
         // The row runs BOTH drags off one press, and each declines outside its
         // own region — so no timing/arbitration rule is needed and neither can
@@ -440,11 +461,11 @@ function SidebarSessionRowImpl({
                   {handoffBadge}
                   <OverflowTip label={title}>
                     <SidebarRowLabel
-                      className="hover-marquee flex-1 font-normal group-hover:text-foreground group-data-[working=true]:text-foreground/90"
+                      className="lcars-session-chip hover-marquee flex-1 font-normal group-hover:text-foreground group-data-[working=true]:text-foreground/90"
                       onPointerEnter={armMarquee}
                       onPointerLeave={disarmMarquee}
                     >
-                      <span className="hover-marquee-inner">{title}</span>
+                      <span className="hover-marquee-inner lcars-session-chip-inner">{title}</span>
                     </SidebarRowLabel>
                   </OverflowTip>
                 </>
@@ -471,11 +492,11 @@ function SidebarSessionRowImpl({
                 <div className="-mt-[0.2em] flex min-w-0 flex-col gap-[0.3rem]">
                   <OverflowTip label={title}>
                     <SidebarRowLabel
-                      className="hover-marquee text-[0.8125rem] leading-none font-medium text-(--ui-text-primary) group-data-[working=true]:text-foreground"
+                      className="lcars-session-chip hover-marquee text-[0.8125rem] leading-none font-medium text-(--ui-text-primary) group-data-[working=true]:text-foreground"
                       onPointerEnter={armMarquee}
                       onPointerLeave={disarmMarquee}
                     >
-                      <span className="hover-marquee-inner">{title}</span>
+                      <span className="hover-marquee-inner lcars-session-chip-inner">{title}</span>
                     </SidebarRowLabel>
                   </OverflowTip>
                   {session.preview && rowMeta.includes('preview') ? (

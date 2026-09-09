@@ -162,22 +162,34 @@ export function Intro({ personality, seed }: IntroProps) {
 
   return (
     <div
-      className="pointer-events-none flex w-full min-w-0 flex-col items-center justify-center px-0.5 py-6 text-center text-muted-foreground sm:px-6 lg:px-8"
+      className="pointer-events-none flex w-full min-w-0 flex-col items-center justify-center px-0.5 py-6 text-muted-foreground sm:px-6 lg:px-8"
       data-slot="aui_intro"
     >
-      <div className="w-full min-w-0">
-        <p
-          aria-label={WORDMARK}
-          className="fit-text mx-auto mb-1 w-[calc(100%-1rem)] font-['Collapse'] font-bold uppercase leading-[0.9] tracking-[0.08em] text-midground mix-blend-plus-lighter dark:text-foreground/90"
-          style={{ '--fit-min': '2.75rem' } as CSSProperties}
-        >
-          <span>
-            <span>{WORDMARK}</span>
-          </span>
-          <span aria-hidden="true">{WORDMARK}</span>
-        </p>
+      <div className="relative w-full min-w-0 overflow-hidden" data-slot="thread-intro-frame">
+        <div aria-hidden="true" data-slot="lcars-intro-bars">
+          <span />
+          <span />
+          <span />
+        </div>
+        <div aria-hidden="true" data-slot="lcars-intro-globe" />
+        <div aria-hidden="true" data-slot="lcars-intro-grid" />
+        <div className="relative z-1 w-full min-w-0" data-slot="thread-intro-content">
+          <p
+            aria-label={WORDMARK}
+            className="fit-text mb-2 w-full font-['Collapse'] font-bold uppercase leading-[0.9] tracking-[0.08em] text-midground mix-blend-plus-lighter dark:text-foreground/90"
+            data-slot="thread-intro-wordmark"
+            style={{ '--fit-min': '2.75rem' } as CSSProperties}
+          >
+            <span>
+              <span>{WORDMARK}</span>
+            </span>
+            <span aria-hidden="true">{WORDMARK}</span>
+          </p>
 
-        <p className="m-0 text-center leading-normal tracking-tight">{copy.body}</p>
+          <p className="m-0 max-w-[36rem] leading-normal tracking-tight" data-slot="thread-intro-body">
+            {copy.body}
+          </p>
+        </div>
       </div>
     </div>
   )
