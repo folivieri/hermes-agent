@@ -1223,20 +1223,31 @@
 
 :root[data-hermes-shell-variant='lcars'] [data-tree-tab] {
   margin: 0.16rem 0.14rem 0.18rem 0;
-  border: 1px solid transparent;
+  border: 1px solid color-mix(in srgb, var(--lcars-rail) 74%, #6a3900);
   border-radius: 999px;
+  color: #28170a;
+  --pane-tab-active-accent: color-mix(in srgb, #6a3900 78%, var(--lcars-rail));
+  background: linear-gradient(180deg, color-mix(in srgb, white 18%, var(--lcars-rail)) 0%, var(--lcars-rail) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 244, 211, 0.42),
+    0 0.2rem 0.55rem rgba(0, 0, 0, 0.18);
+}
+
+:root[data-hermes-shell-variant='lcars'] [data-tree-tab] :is(span, button) {
+  color: inherit;
 }
 
 :root[data-hermes-shell-variant='lcars'] [data-tree-tab][data-active='true'] {
-  border-color: var(--lcars-divider);
-  box-shadow: none;
-  background:
-    linear-gradient(90deg, color-mix(in srgb, var(--lcars-rail) 92%, transparent) 0 0.62rem, color-mix(in srgb, var(--ui-bg-editor) 98%, transparent) 0.62rem 100%);
+  border-color: color-mix(in srgb, white 28%, var(--lcars-rail));
+  background: linear-gradient(180deg, color-mix(in srgb, white 24%, var(--lcars-rail)) 0%, color-mix(in srgb, #ffbf61 86%, var(--lcars-rail)) 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 247, 223, 0.56),
+    0 0.28rem 0.72rem rgba(0, 0, 0, 0.2);
 }
 
 :root[data-hermes-shell-variant='lcars'] [data-tree-tab]:not([data-active='true']) {
-  background: color-mix(in srgb, var(--lcars-panel) 72%, transparent);
-  border-color: color-mix(in srgb, var(--lcars-divider) 35%, transparent);
+  border-color: color-mix(in srgb, #6a3900 46%, var(--lcars-rail));
+  background: linear-gradient(180deg, color-mix(in srgb, white 12%, var(--lcars-rail)) 0%, color-mix(in srgb, #e19d34 84%, var(--lcars-rail)) 100%);
 }
 
 :root[data-hermes-shell-variant='lcars'] [data-slot='sidebar-session-row'] {
@@ -1359,6 +1370,7 @@
     inset 0 0 0 1px color-mix(in srgb, #fff 5%, transparent),
     0 0 0.9rem color-mix(in srgb, var(--lcars-row-edge, var(--lcars-blue)) 18%, transparent);
 }
+
 
 :root[data-hermes-shell-variant='lcars'] [data-slot='composer-dock'] {
   filter: drop-shadow(0 0.55rem 1.2rem color-mix(in srgb, #000 32%, transparent));
