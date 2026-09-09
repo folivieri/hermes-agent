@@ -1372,6 +1372,54 @@
 }
 
 
+:root[data-hermes-shell-variant='lcars'] [data-slot='composer-bounds'] {
+  position: relative;
+  isolation: isolate;
+  background:
+    linear-gradient(180deg, color-mix(in srgb, #08111d 92%, var(--ui-chat-surface-background)) 0%, color-mix(in srgb, #07101b 98%, #02060c) 100%);
+}
+
+:root[data-hermes-shell-variant='lcars'] [data-slot='aui_thread-viewport'] {
+  position: relative;
+  background:
+    linear-gradient(180deg, rgba(4, 12, 22, 0.4) 0%, rgba(3, 9, 17, 0.76) 100%),
+    linear-gradient(90deg, rgba(2, 7, 16, 0.96) 0%, rgba(3, 10, 20, 0.88) 16%, rgba(5, 18, 32, 0.44) 48%, rgba(4, 16, 30, 0.72) 100%),
+    url('/ds-assets/lcars/hermes-blueprint.png');
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-size: auto, auto, cover;
+  background-position: center, center, right center;
+}
+
+:root[data-hermes-shell-variant='lcars'] [data-slot='aui_thread-viewport']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.68;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(94, 166, 255, 0.18) 0%, transparent 26%),
+    radial-gradient(circle at 76% 42%, rgba(122, 220, 255, 0.14) 0%, transparent 24%),
+    linear-gradient(90deg, rgba(2, 6, 14, 0.12) 0 58%, rgba(8, 25, 42, 0.38) 100%);
+}
+
+:root[data-hermes-shell-variant='lcars'] [data-slot='composer-bounds']::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 76% 44%, color-mix(in srgb, var(--lcars-blue-soft) 22%, transparent) 0%, transparent 30%),
+    linear-gradient(90deg, transparent 0 62%, color-mix(in srgb, var(--lcars-cyan) 6%, transparent) 100%);
+}
+
+:root[data-hermes-shell-variant='lcars'] [data-slot='composer-bounds'] > *,
+:root[data-hermes-shell-variant='lcars'] [data-slot='aui_thread-viewport'] > * {
+  position: relative;
+  z-index: 1;
+}
+
 :root[data-hermes-shell-variant='lcars'] [data-slot='composer-dock'] {
   filter: drop-shadow(0 0.55rem 1.2rem color-mix(in srgb, #000 32%, transparent));
 }
