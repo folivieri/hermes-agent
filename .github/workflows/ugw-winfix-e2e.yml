@@ -1,0 +1,69 @@
+# TEMPORARY — windows-latest proof for the two OS-lane test fixes; never merges
+name: UGW winfix wave37 (temporary)
+
+on:
+  push:
+    branches:
+      - "wine2e/ugw-winfix-**"
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    name: windows_only proof (windows-latest)
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        timeout-minutes: 5
+        with:
+          fetch-depth: 0
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@fac544c07dec837d0ccb6301d7b5580bf5edae39 # 8.2.0
+        timeout-minutes: 5
+        with:
+          version: "0.9.28"
+          enable-cache: true
+          cache-dependency-glob: |
+            pyproject.toml
+            uv.lock
+
+      - name: Set up Python 3.11
+        uses: ./.github/actions/retry
+        timeout-minutes: 10
+        with:
+          command: uv python install 3.11
+
+      - name: Install dependencies
+        uses: ./.github/actions/retry
+        timeout-minutes: 25
+        with:
+          command: uv sync --locked --python 3.11 --extra dev --extra messaging
+
+      - name: Fixed tests (must be GREEN)
+        shell: bash
+        timeout-minutes: 15
+        run: |
+          set -uo pipefail
+          uv run --no-sync pytest -p no:cacheprovider -m "windows_only and not integration" -vv -rA \
+            tests/hermes_cli/test_gateway_runtime_service.py tests/tools/test_bot_mode_dm.py
+          rc=$?
+          echo "RESULT fixed windows-latest: exit=$rc"
+          exit $rc
+
+      - name: Base tests at 09e84eacbea (expected RED, evidence only)
+        if: always()
+        shell: bash
+        continue-on-error: true
+        timeout-minutes: 15
+        run: |
+          set -uo pipefail
+          git checkout 09e84eacbea -- tests/hermes_cli/test_gateway_runtime_service.py tests/tools/test_bot_mode_dm.py
+          uv run --no-sync pytest -p no:cacheprovider -m "windows_only and not integration" -vv -rA \
+            tests/hermes_cli/test_gateway_runtime_service.py tests/tools/test_bot_mode_dm.py
+          rc=$?
+          echo "RESULT base windows-latest: exit=$rc"
+          exit $rc
